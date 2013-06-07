@@ -1,0 +1,298 @@
+set nocompatible
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+call pathogen#runtime_append_all_bundles()
+call pathogen#helptags()
+
+colorscheme default_modified
+set guifont=Consolas:h10 
+set number
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set cindent
+set nobackup
+set hidden
+set noswapfile
+set undolevels=1000      " use many muchos levels of undo
+set statusline=%t%m%r%h%w\ [%{&ff}]\ %y\ [%l/%L--%c]\ [%p%%]
+set laststatus=2 
+set cursorline
+set cinoptions+=g0,h4
+
+"Disable beeps and flashing
+set noerrorbells visualbell t_vb=
+if has('autocmd')
+  autocmd GUIEnter * set visualbell t_vb=
+endif
+
+nnoremap ; :
+
+" Remove the highlight of search when done
+nmap <silent> ,/ :nohlsearch<CR>
+
+"Settings for relative line numbering
+function! NumberToggle()
+    if(&relativenumber == 1)
+        set number
+    else
+        set relativenumber
+    endif
+endfunction
+
+"Format line numbers to be 4 numbers wide
+au FocusLost * :set number
+au FocusGained * :set relativenumber
+autocmd InsertEnter * :set number
+autocmd InsertLeave * :set relativenumber
+nnoremap <Leader>n :call NumberToggle()<cr>
+set nuw=5
+
+"Add mapping to insert line without going into insert mode
+map <S-Enter> O<Esc>
+map <CR> o<Esc>
+
+function! ToggleGUICruft()
+  if &guioptions=='i'
+    exec('set guioptions=imTrL')
+  else
+    exec('set guioptions=i')
+  endif
+endfunction
+
+let g:tvmode = 0
+function! ToggleFontSize()
+  if g:tvmode == 1
+    exec('set guifont=Lucida\ Console:h9:cANSI')
+    colorscheme default_modified
+let g:tvmode = 0
+  else
+    exec('set guifont=Lucida\ Console:h14:cANSI')
+    colorscheme mustang
+    let g:tvmode = 1
+  endif
+endfunction
+
+map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+map <F10> <Esc>:call ToggleGUICruft()<cr>
+map <F9> <Esc>:call ToggleFontSize()<cr>
+map <F2> <Esc>:silent! !ctags -R &<cr>
+map <F3> <Esc>:UpdateTypesFile<cr>
+
+" by default, hide gui menus
+set guioptions=i
+
+filetype plugin on
+
+"Super Tab Settings
+let g:SuperTabDefaultCompletionType = "context"
+let g:SuperTabLongestEnhanced = 1
+let g:SuperTabLongestHighlight = 1
+"Set Enter to select the highlighted item
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+"MiniBufExplorer Settings
+let g:miniBufExplMapWindowNavVim = 1
+let g:miniBufExplMapCTabSwitchBufs = 1
+
+"Ctrl-P Settings
+let g:ctrlp_working_path_mode = 'rc'
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+"let g:ctrlp_custom_ignore = {
+"	\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+"	\ 'file': '\v\.(exe|so|dll)$',
+"	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+"	\ }
+
+map <F4> :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw<CR><C-W><C-P>
+command FW :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw <bar> normal <C-W><C-P>
+command -nargs=* FF :execute "vimgrep! /" . expand("<args>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw <bar> normal <C-W><C-P>
+map <F5> :mak<CR>
+map <F6> :Acad<CR>
+
+autocmd FileType qf wincmd J
+
+" Assign some keys for handy quickfix window commands.
+if has("win32")
+  nnoremap <kPlus>     :call <SID>Fancy_Quickfix_Cmd(':cnext')<CR>
+  nnoremap <kMinus>    :call <SID>Fancy_Quickfix_Cmd(':cprev')<CR>
+  nnoremap <kMultiply> :call <SID>Fancy_Quickfix_Cmd(':cc')<CR>
+  nnoremap <c-kPlus>   :clast<CR>
+  nnoremap <c-kMinus>  :cfirst<CR>
+  nnoremap <m-kPlus>   :cnewer<CR>
+  nnoremap <m-kMinus>  :colder<CR>
+endif
+
+" Very simple wrapper: do quickfix cmd, center line and,
+" if taglist.vim's window is open, sync.
+function s:Fancy_Quickfix_Cmd(Cmd)
+  try
+    execute a:Cmd
+  catch /^Vim(\a\+):E553:/
+    echohl ErrorMsg | echo v:exception | echohl None
+  endtry
+  norm! zz
+  " If the taglist window is open then :TlistSync
+  "    Tag list window name: '__Tag_List__'
+  if bufwinnr('__Tag_List__') != -1
+    TlistSync
+  endif
+endfunction
+
+"au BufWritePost *.c,*.cpp,*.h call s:ExecuteInShellHidden("silent! !ctags -R &")
+set makeprg=amake
+set switchbuf=usetab
+
+" Command Make will call make and then cwindow which
+" opens a 3 line error window if any errors are found.
+" If no errors, it closes any open cwindow.
+"command -nargs=* Make make <args> | copen 3
+
+" Automatically open, but do not go to (if there are errors) the quickfix /
+" location list window, or close it when is has become empty.
+"
+" Note: Must allow nesting of autocmds to enable any customizations for quickfix
+" buffers.
+" Note: Normally, :cwindow jumps to the quickfix window if the command opens it
+" (but not if it's already open). However, as part of the autocmd, this doesn't
+" seem to happen.
+autocmd QuickFixCmdPost [^l]* nested cwindow 8
+autocmd QuickFixCmdPost    l* nested lwindow
+
+"au FileType qf call AdjustWindowHeight(3, 10)
+"function! AdjustWindowHeight(minheight, maxheight)
+  "exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
+"endfunction
+"command Clean :echo system("amake clean")
+
+function! s:ExecuteInShell(command)
+  let command = join(map(split(a:command), 'expand(v:val)'))
+  let winnr = bufwinnr('^' . command . '$')
+  silent! execute  winnr < 0 ? 'botright new ' . fnameescape(command) : winnr . 'wincmd w'
+  setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number
+  echo 'Execute ' . command . '...'
+  silent! execute 'silent %!'. command
+  silent! execute 'resize ' . line('$')
+  silent! redraw
+  silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
+  silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>'
+  echo 'Shell command ' . command . ' executed.'
+endfunction
+
+function! s:ExecuteInShellHidden(command)
+  let curwin = winnr()
+  let command = join(map(split(a:command), 'expand(v:val)'))
+  let winnr = bufwinnr('^' . command . '$')
+  silent! execute  winnr < 0 ? 'botright new ' . fnameescape(command) : winnr . 'wincmd w'
+  setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number
+  echo 'Execute ' . command . '...'
+  silent! execute 'silent %!'. command
+  "silent! execute 'resize 0'
+  silent! execute 'hide'
+  silent! redraw
+  silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
+  silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>'
+  echo 'Shell command ' . command . ' executed.'
+  silent! execute curwin .'wincmd w'
+endfunction
+command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
+command! -complete=shellcmd Acad call s:ExecuteInShellHidden("acad")
+command! -complete=shellcmd Mak call s:ExecuteInShellHidden("mak")
+
+"GLSL Syntax Highlighting
+au BufNewFile,BufRead *.frag,*.vert,*.fp,*.vp,*.glsl setf glsl 
+au BufNewFile,BufRead *.hlsl,*.fx setf fx 
+"GScript Syntax Highlighting
+au BufRead,BufNewFile *.gs2 setfiletype gscript | set tabstop=2 | shiftwidth=2
+
+"EasyMotion Configuration
+let g:EasyMotion_leader_key = '<Leader>'
+
+"NERDTree Configuration
+nnoremap <C-e> :NERDTreeToggle<CR>
+"Make NERDTree close when its the other buffer
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+
+
+" REQUIRED. This makes vim invoke Latex-Suite when you open a tex file.
+filetype plugin on
+
+" IMPORTANT: win32 users will need to have 'shellslash' set so that latex
+" can be called correctly.
+set shellslash
+
+" IMPORTANT: grep will sometimes skip displaying the file name if you
+" search in a singe file. This will confuse Latex-Suite. Set your grep
+" program to always generate a file-name.
+set grepprg=grep\ -nH\ $*
+
+" OPTIONAL: This enables automatic indentation as you type.
+filetype indent on
+
+" OPTIONAL: Starting with Vim 7, the filetype of empty .tex files defaults to
+" 'plaintex' instead of 'tex', which results in vim-latex not being loaded.
+" The following changes the default filetype back to 'tex':
+let g:tex_flavor='latex'
+
+au BufRead,BufNewFile *.tex noremap j gj
+au BufRead,BufNewFile *.tex noremap k gk
+au BufRead,BufNewFile *.tex set formatoptions=l
+au BufRead,BufNewFile *.tex set lbr
+let g:Tex_ViewRule_pdf = 'SumatraPDF'
+let g:Tex_DefaultTargetFormat = 'pdf'
+let g:Tex_CompileRule_pdf = 'pdflatex --synctex=-1 -src-specials -interaction=nonstopmode $*'
+set nofoldenable
+
+"Smooth scrolling
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 12, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 12, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 12, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 12, 4)<CR>
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+
+"Window setup at start (With NerdTree)
+autocmd VimEnter * wincmd l
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+
+" Close all open buffers on entering a window if the only
+" buffer that's left is the NERDTree buffer
+function! s:CloseIfOnlyNerdTreeLeft()
+  if exists("t:NERDTreeBufName")
+    if bufwinnr(t:NERDTreeBufName) != -1
+      if winnr("$") == 1
+        q
+      endif
+    endif
+  endif
+endfunction
+
+if has("gui_running")
+    au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
+endif
