@@ -1,0 +1,30 @@
+[
+  {
+    "caption": "Mark And Move: Save",
+    "command": "mark_and_move_save"
+  },
+  {
+    "caption": "Mark And Move: Next",
+    "command": "mark_and_move_next"
+  },
+  {
+    "caption": "Mark And Move: Previous",
+    "command": "mark_and_move_prev"
+  },
+  {
+    "caption": "Mark And Move: Recall",
+    "command": "mark_and_move_recall"
+  },
+  {
+    "caption": "Mark And Move: Clear",
+    "command": "mark_and_move_clear"
+  },
+  {
+    "caption": "Mark And Move Window: Next",
+    "command": "mark_and_move_window"
+  },
+  {
+    "caption": "Mark And Move Window: Link to Tab",
+    "command": "mark_and_move_select_window"
+  }
+]

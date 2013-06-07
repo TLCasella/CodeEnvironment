@@ -1,0 +1,83 @@
+[
+    { "keys": ["ctrl+0"], "command": "next_view" },
+    { "keys": ["ctrl+9"], "command": "prev_view" },
+
+	{ "keys": ["f1"], "command": "show_panel", "args": {"panel": "console", "toggle": true} },
+    { "keys": ["ctrl+t"], "command": "side_bar_new_file2" },
+    { "keys": ["f2"], "command": "side_bar_rename" },
+    { "keys": ["ctrl+alt+f"], "command": "side_bar_find_files_path_containing" },
+    { "keys": ["ctrl+w"], "command": "close" },
+    { "keys": ["ctrl+f"], "command": "find_under_expand" },
+    { "keys": ["ctrl+k", "ctrl+f"], "command": "find_under_expand_skip" },
+    {"keys": ["ctrl+t"], "command": "toggle_setting", "args": {"setting": "vintage_lines.force_mode"}},
+
+    {"keys": ["ctrl+u"], "command": "scroll_lines", "args": {"amount": 30.0}, "context": [{ "key": "setting.command_mode" }]},
+    {"keys": ["ctrl+d"], "command": "scroll_lines", "args": {"amount": -30.0}, "context": [{"key": "setting.command_mode"}]},
+
+    { "keys": ["ctrl+m"], "command": "mark_and_move_do_it_all" },
+    { "keys": ["alt+m"], "command": "mark_and_move_next" },
+    { "keys": ["alt+shift+m"], "command": "mark_and_move_prev" },
+    { "keys": ["ctrl+shift+m"], "command": "mark_and_move_recall" },
+    { "keys": ["ctrl+alt+m"], "command": "mark_and_move_clear" },
+
+    { "keys": ["ctrl+b"], "command": "build" },
+    { "keys": ["f5"], "command": "exec", "args": { "cmd": ["acad.bat"]} },
+    
+    //Vintageous commands
+    //Command mode
+    { "keys": ["j"], "command": "move", "args": {"by": "lines", "forward": true}, 
+        "context": [
+            {"key": "setting.command_mode"}, 
+            {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+        ] 
+    },
+    { "keys": ["k"], "command": "move", "args": {"by": "lines", "forward": false}, 
+        "context": [
+            {"key": "setting.command_mode"},
+            {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+        ]
+    },
+
+    //Simple visual mode
+    { "keys": ["j"], "command": "move", "args": {"by": "lines", "forward": true, "extend": true}, 
+        "context": [
+            {"key": "vi_mode_visual"},
+            {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+        ]
+    },
+    { "keys": ["k"], "command": "move", "args": {"by": "lines", "forward": false, "extend": true}, 
+        "context": [
+            {"key": "vi_mode_visual"},
+            {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+        ]
+    },
+
+    //Visual line mode.
+    { "keys": ["j"],
+    "command": "run_multiple_commands",
+    "context": [
+        {"key": "vi_mode_visual_line"},
+        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+    ],
+    "args": {
+      "commands": [
+        {"command": "move", "args": {"by": "lines", "forward": true, "extend": true}},
+        {"command": "expand_selection", "args": {"to": "line"} }
+    ]}},
+
+    { "keys": ["k"],
+    "command": "run_multiple_commands",
+    "context": [
+        {"key": "vi_mode_visual_line"},
+        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+    ],
+    "args": {
+      "commands": [
+        {"command": "move", "args": {"by": "lines", "forward": false, "extend": true}},
+        {"command": "expand_selection", "args": {"to": "line"} }
+    ]}},
+
+
+    { "keys": [";"], "command": "vi_colon_input",                                     "context": [{"key": "setting.command_mode"}, {"key": "vi_enable_cmdline_mode"}] },
+    { "keys": [";"], "command": "vi_colon_input", "args": {"initial_text": ":'<,'>"}, "context": [{"key": "setting.command_mode"}, {"key": "selection_empty", "operator": "equal", "operand": false }, {"key": "vi_enable_cmdline_mode"}] },
+]

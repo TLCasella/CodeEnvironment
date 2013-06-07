@@ -1,0 +1,25 @@
+{
+	"bold_folder_labels": true,
+	"caret_style": "solid",
+	"color_scheme": "Packages/Color Scheme - Cursor/Monokai.tmTheme",
+	"font_size": 12,
+	"highlight_line": true,
+	"highlight_modified_tabs": true,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"reveal-on-activate": true,
+	"theme": "Nil.sublime-theme",
+	"translate_tabs_to_spaces": true,
+	"vintage_use_clipboard": true,
+	"vintageous_autoindent": true,
+	"vintageous_enable_cmdline_mode": true,
+	"vintageous_hlsearch": true,
+	"vintageous_incsearch": true,
+	"vintageous_reset_mode_when_switching_tabs": true,
+	"vintageous_search_mode": "smart_case",
+	"vintageous_use_ctrl_keys": true,
+	"vintageous_verbose": false,
+	"wide_caret": true
+}
