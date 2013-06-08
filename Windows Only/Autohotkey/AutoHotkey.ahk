@@ -14,7 +14,6 @@ Capslock::Esc
 
 #IfWinActive Visual Studio
 Capslock::Esc
-`;:::
 
 ^n::
 Send {Down}
