@@ -1,0 +1,10 @@
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set nu
+set backup off
+set mouse=nicr
+nnoremap ; :
+set noerrorbells visualbell t_vb=
+autocmd BufWinEnter * set visualbell t_vb=
+set relativenumber
