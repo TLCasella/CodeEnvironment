@@ -50,10 +50,6 @@ autocmd InsertLeave * :set relativenumber
 nnoremap <Leader>n :call NumberToggle()<cr>
 set nuw=5
 
-"Add mapping to insert line without going into insert mode
-map <S-Enter> O<Esc>
-map <CR> o<Esc>
-
 function! ToggleGUICruft()
   if &guioptions=='i'
     exec('set guioptions=imTrL')
@@ -90,8 +86,6 @@ filetype plugin on
 let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
-"Set Enter to select the highlighted item
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
 "MiniBufExplorer Settings
 let g:miniBufExplMapWindowNavVim = 1
@@ -292,6 +286,16 @@ function! s:CloseIfOnlyNerdTreeLeft()
     endif
   endif
 endfunction
+
+" Multi-cursor settings
+" Default mapping
+let g:multi_cursor_next_key='<C-n>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-x>'
+let g:multi_cursor_quit_key='<Esc>'
+let g:multi_cursor_exit_from_visual_mode = 0
+let g:multi_cursor_exit_from_insert_mode = 0
+
 
 if has("gui_running")
     au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
