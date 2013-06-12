@@ -207,8 +207,27 @@ let g:EasyMotion_leader_key = '<Leader>'
 
 "NERDTree Configuration
 nnoremap <C-e> :NERDTreeToggle<CR>
-"Make NERDTree close when its the other buffer
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+" Close all open buffers on entering a window if the only
+" buffer that's left is the NERDTree buffer
+function! s:CloseIfOnlyNerdTreeLeft()
+  if exists("t:NERDTreeBufName")
+    if bufwinnr(t:NERDTreeBufName) != -1
+      if winnr("$") == 1
+        q
+      endif
+    endif
+  endif
+endfunction
+
+"Window setup at start (With NerdTree)
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+
+" Open NERDTree on startup
+autocmd VimEnter * NERDTree
+autocmd BufEnter * NERDTreeMirror
+
+autocmd VimEnter * wincmd w
+
 
 
 " REQUIRED. This makes vim invoke Latex-Suite when you open a tex file.
@@ -269,22 +288,6 @@ function MyDiff()
     let cmd = $VIMRUNTIME . '\diff'
   endif
   silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
-
-"Window setup at start (With NerdTree)
-autocmd VimEnter * wincmd l
-autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
-
-" Close all open buffers on entering a window if the only
-" buffer that's left is the NERDTree buffer
-function! s:CloseIfOnlyNerdTreeLeft()
-  if exists("t:NERDTreeBufName")
-    if bufwinnr(t:NERDTreeBufName) != -1
-      if winnr("$") == 1
-        q
-      endif
-    endif
-  endif
 endfunction
 
 " Multi-cursor settings
