@@ -28,12 +28,14 @@
     { "keys": ["j"], "command": "move", "args": {"by": "lines", "forward": true}, 
         "context": [
             {"key": "setting.command_mode"}, 
+            {"key": "vi_mode_visual_line", "operator": "equal", "operand": false},
             {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
         ] 
     },
     { "keys": ["k"], "command": "move", "args": {"by": "lines", "forward": false}, 
         "context": [
             {"key": "setting.command_mode"},
+            {"key": "vi_mode_visual_line", "operator": "equal", "operand": false},
             {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
         ]
     },
@@ -42,41 +44,17 @@
     { "keys": ["j"], "command": "move", "args": {"by": "lines", "forward": true, "extend": true}, 
         "context": [
             {"key": "vi_mode_visual"},
+            {"key": "vi_mode_visual_line", "operator": "equal", "operand": false},
             {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
         ]
     },
     { "keys": ["k"], "command": "move", "args": {"by": "lines", "forward": false, "extend": true}, 
         "context": [
             {"key": "vi_mode_visual"},
+            {"key": "vi_mode_visual_line", "operator": "equal", "operand": false},
             {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
         ]
     },
-
-    //Visual line mode.
-    { "keys": ["j"],
-    "command": "run_multiple_commands",
-    "context": [
-        {"key": "vi_mode_visual_line"},
-        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
-    ],
-    "args": {
-      "commands": [
-        {"command": "move", "args": {"by": "lines", "forward": true, "extend": true}},
-        {"command": "expand_selection", "args": {"to": "line"} }
-    ]}},
-
-    { "keys": ["k"],
-    "command": "run_multiple_commands",
-    "context": [
-        {"key": "vi_mode_visual_line"},
-        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
-    ],
-    "args": {
-      "commands": [
-        {"command": "move", "args": {"by": "lines", "forward": false, "extend": true}},
-        {"command": "expand_selection", "args": {"to": "line"} }
-    ]}},
-
 
     { "keys": [";"], "command": "vi_colon_input",                                     "context": [{"key": "setting.command_mode"}, {"key": "vi_enable_cmdline_mode"}] },
     { "keys": [";"], "command": "vi_colon_input", "args": {"initial_text": ":'<,'>"}, "context": [{"key": "setting.command_mode"}, {"key": "selection_empty", "operator": "equal", "operand": false }, {"key": "vi_enable_cmdline_mode"}] },
