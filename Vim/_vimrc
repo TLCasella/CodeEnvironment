@@ -152,7 +152,11 @@ function s:Fancy_Quickfix_Cmd(Cmd)
 endfunction
 
 "au BufWritePost *.c,*.cpp,*.h call s:ExecuteInShellHidden("silent! !ctags -R &")
+if has("mac")
+set makeprg=make
+else
 set makeprg=amake
+endif
 set switchbuf=usetab
 
 " Command Make will call make and then cwindow which
