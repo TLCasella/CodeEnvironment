@@ -206,7 +206,7 @@ au BufRead,BufNewFile *.gs2 setfiletype gscript | set tabstop=2 | shiftwidth=2
 let g:EasyMotion_leader_key = '<Leader>'
 
 "NERDTree Configuration
-nnoremap <C-e> :NERDTreeToggle<CR>
+nnoremap <C-e> :NERDTreeToggle<CR> <bar> <C-w>=
 " Close all open buffers on entering a window if the only
 " buffer that's left is the NERDTree buffer
 function! s:CloseIfOnlyNerdTreeLeft()
