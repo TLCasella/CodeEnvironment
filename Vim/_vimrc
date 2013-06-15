@@ -6,8 +6,13 @@ behave mswin
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 
-colorscheme default_modified
+if has("mac")
+set guifont=Consolas:h12 
+else
 set guifont=Consolas:h10 
+endif
+
+colorscheme default_modified
 set number
 set expandtab
 set tabstop=4
@@ -49,6 +54,8 @@ function! NumberToggle()
         set relativenumber
     endif
 endfunction
+au BufEnter * :set relativenumber
+au BufLeave * :set number
 
 "Format line numbers to be 4 numbers wide
 au FocusLost * :set number
@@ -308,6 +315,8 @@ let g:multi_cursor_exit_from_visual_mode = 0
 let g:multi_cursor_exit_from_insert_mode = 0
 
 
-if has("gui_running")
-    au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
+if has("win32")
+    if has("gui_running")
+        au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
+    endif
 endif
