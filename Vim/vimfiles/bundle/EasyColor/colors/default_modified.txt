@@ -24,7 +24,7 @@ Light:
 	LocalVariable:Red
 	Macro:Orange
 	DefinedName:@Macro
-	Structure:CoralRed
+	Structure:VomitGreen
 	Special:Yellow
 	Character:@String
 	Define:@Macro
