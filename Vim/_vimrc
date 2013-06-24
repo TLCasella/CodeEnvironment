@@ -102,9 +102,28 @@ let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
 
-"MiniBufExplorer Settings
-let g:miniBufExplMapWindowNavVim = 1
-let g:miniBufExplMapCTabSwitchBufs = 1
+"MiniBufExpl Settings
+let g:miniBufExplCycleArround = 1
+let g:miniBufExplUseSingleClick = 1
+
+" MiniBufExpl Colors
+hi MBENormal               guifg=#808080 guibg=fg
+hi MBEChanged              guifg=#fa714e guibg=fg
+hi MBEVisibleNormal        guifg=#84cae6 guibg=fg
+hi MBEVisibleChanged       guifg=#fa714e guibg=fg
+hi MBEVisibleActiveNormal  guifg=#ffcd22 guibg=fg
+hi MBEVisibleActiveChanged guifg=#ffcd22 guibg=fg
+
+
+"Window navigation
+noremap <C-J>     <C-W>j
+noremap <C-K>     <C-W>k
+noremap <C-H>     <C-W>h
+noremap <C-L>     <C-W>l
+
+"Switch tabs using ctrl + tab / ctrl + shift + tab
+noremap <C-TAB>   :MBEbn<CR>
+noremap <C-S-TAB> :MBEbp<CR>
 
 "Ctrl-P Settings
 let g:ctrlp_working_path_mode = 'rc'
@@ -242,10 +261,8 @@ endfunction
 autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
 
 " Open NERDTree on startup
-autocmd VimEnter * NERDTree
-autocmd BufEnter * NERDTreeMirror
-
-autocmd VimEnter * wincmd w
+"autocmd VimEnter * NERDTree
+"autocmd VimEnter * wincmd w
 
 
 
@@ -319,6 +336,7 @@ let g:multi_cursor_exit_from_visual_mode = 0
 let g:multi_cursor_exit_from_insert_mode = 0
 
 
+au GUIEnter * : call foreground()
 if has("win32")
     if has("gui_running")
         au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
