@@ -116,10 +116,10 @@ hi MBEVisibleActiveChanged guifg=#ffcd22 guibg=fg
 
 
 "Window navigation
-noremap <C-J>     <C-W>j
-noremap <C-K>     <C-W>k
-noremap <C-H>     <C-W>h
-noremap <C-L>     <C-W>l
+nnoremap <C-J>     <C-W>j
+nnoremap <C-K>     <C-W>k
+nnoremap <C-H>     <C-W>h
+nnoremap <C-L>     <C-W>l
 
 "Switch tabs using ctrl + tab / ctrl + shift + tab
 noremap <C-TAB>   :MBEbn<CR>
@@ -177,6 +177,23 @@ else
 set makeprg=amake
 endif
 set switchbuf=usetab
+
+"Make sure the quick fix window is the right size when its opened
+au FileType qf call AdjustWindowHeight(3, 10)
+function! AdjustWindowHeight(minheight, maxheight)
+   let l = 1
+   let n_lines = 0
+   let w_width = winwidth(0)
+   while l <= line('$')
+       " number to float for division
+       let l_len = strlen(getline(l)) + 0.0
+       let line_width = l_len/w_width
+       let n_lines += float2nr(ceil(line_width))
+       let l += 1
+   endw
+   exe max([min([n_lines, a:maxheight]), a:minheight]) . "wincmd _"
+endfunction
+
 
 " Command Make will call make and then cwindow which
 " opens a 3 line error window if any errors are found.
