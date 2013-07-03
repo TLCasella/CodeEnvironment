@@ -141,11 +141,11 @@ noremap <C-S-TAB> :MBEbp<CR>
 let g:ctrlp_working_path_mode = 'rc'
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
-"let g:ctrlp_custom_ignore = {
-"	\ 'dir':  '\v[\/]\.(git|hg|svn)$',
-"	\ 'file': '\v\.(exe|so|dll)$',
-"	\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
-"	\ }
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    \ 'file': '\v\.(exe|so|obj|dll)$',
+    \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+    \ }
 
 map <F4> :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw<CR><C-W><C-P>
 command FW :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw <bar> normal <C-W><C-P>
