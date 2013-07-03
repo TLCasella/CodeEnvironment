@@ -46,6 +46,16 @@ nnoremap ; :
 " Remove the highlight of search when done
 nmap <silent> ,/ :nohlsearch<CR>
 
+" returns true iff is NERDTree open/active
+function! rc:isNTOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+
+" returns true iff focused window is NERDTree window
+function! rc:isNTFocused()     
+  return -1 != match(expand('%'), 'NERD_Tree') 
+endfunction 
+
 "Settings for relative line numbering
 function! NumberToggle()
     if(&relativenumber == 1)
@@ -54,8 +64,10 @@ function! NumberToggle()
         set relativenumber
     endif
 endfunction
-au BufEnter * :set relativenumber
-au BufLeave * :set number
+"au BufEnter * :set relativenumber
+"au BufLeave * :set number
+au BufEnter * if (rc:isNTFocused()) | set relativenumber endif
+au BufLeave * if (rc:isNTFocused()) | set number endif
 
 "Format line numbers to be 4 numbers wide
 au FocusLost * :set number
