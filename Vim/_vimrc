@@ -84,6 +84,7 @@ NeoBundle 'beyondmarc/hlsl.vim'
 "NeoBundle 'majutsushi/tagbar'
 
 " vim-scripts repos
+NeoBundle 'L9'
 NeoBundle 'taglist.vim'
 NeoBundle 'a.vim'
 
@@ -98,6 +99,7 @@ NeoBundle 'a.vim'
 " Non git repos
 NeoBundle 'https://bitbucket.org/abudden/easycolour'
 NeoBundle 'https://bitbucket.org/abudden/taghighlight'
+NeoBundle 'https://bitbucket.org/ns9tks/vim-autocomplpop/'
 "NeoBundle 'http://svn.macports.org/repository/macports/contrib/mpvim/'
 NeoBundleCheck
 
@@ -290,8 +292,8 @@ filetype plugin on
 let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
-set completeopt=menuone,menu,longest
-set pumheight=15
+"set completeopt=menuone,menu,longest
+"set pumheight=15
 
 "=======================================================================================
 "                            Window Navigation Settings
