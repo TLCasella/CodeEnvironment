@@ -3,13 +3,111 @@ source $VIMRUNTIME/vimrc_example.vim
 source $VIMRUNTIME/mswin.vim
 behave mswin
 
-call pathogen#runtime_append_all_bundles()
-call pathogen#helptags()
+"=======================================================================================
+"                                   Plugins Setups
+"=======================================================================================
+if has('vim_starting')
+   if has("mac")
+      set runtimepath+=~/.vim/bundle/neobundle.vim/
+   else
+      set runtimepath+=$VIMRUNTIME/../vimfiles/bundle/neobundle.vim/
+   endif
+endif
 
+call neobundle#rc(expand('~/.vim/bundle/'))
+
+ " Let NeoBundle manage NeoBundle
+ NeoBundleFetch 'Shougo/neobundle.vim'
+
+ " Recommended to install
+ " After install, turn shell ~/.vim/bundle/vimproc, (n,g)make -f your_machines_makefile
+ NeoBundle 'Shougo/vimproc'
+
+" My Bundles here:
+"
+" Note: You don't set neobundle setting in .gvimrc!
+" Original repos on github
+"NeoBundle 'Lokaltog/vim-easymotion' 
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'scrooloose/nerdcommenter'
+NeoBundle 'bkad/CamelCaseMotion'
+NeoBundle 'Raimondi/delimitMate'
+
+"Needed by Many plugins
+NeoBundle 'MarcWeber/vim-addon-mw-utils'
+
+"Buffer management
+NeoBundle 'fholgado/minibufexpl.vim'
+NeoBundle 'octol/vim-cpp-enhanced-highlight'
+NeoBundle 'terryma/vim-multiple-cursors'
+NeoBundle 'terryma/vim-smooth-scroll'
+NeoBundle 'jimsei/winresizer'
+NeoBundle 'Shougo/unite.vim'
+"Code Completion
+"NeoBundle 'Shougo/neocomplcache'
+"NeoBundle 'ujihisa/neco-look'
+"NeoBundle 'Rip-Rip/clang_complete'
+NeoBundle 'ervandew/supertab'
+
+"Snippets
+"NeoBundle 'scrooloose/snipmate-snippets'
+"NeoBundle 'garbas/vim-snipmate'
+"Useful
+"NeoBundle 'Shougo/neosnippet'
+"NeoBundle 'honza/vim-snippets'
+"Useful
+"NeoBundle 'SirVer/ultisnips'
+
+"NeoBundle 'Shougo/vimproc', {
+      "\ 'build' : {
+      "\     'windows' : 'make -f make_mingw32.mak',
+      "\     'cygwin' : 'make -f make_cygwin.mak',
+      "\     'mac' : 'make -f make_mac.mak',
+      "\     'unix' : 'make -f make_unix.mak',
+      "\    },
+      "\ }
+NeoBundle 'Shougo/vimproc'
+NeoBundle 'Shougo/unite.vim'
+"NeoBundle 'h1mesuke/unite-outline'
+"NeoBundle 'tsukkee/unite-tag'
+NeoBundle 'nathanaelkane/vim-indent-guides'
+"Python-based original powerline
+"NeoBundle 'Lokaltog/powerline'
+"Vimscript-based powerline clone
+NeoBundle 'bling/vim-airline'
+"NeoBundle 'Lokaltog/powerline-fonts'
+NeoBundle 'runsisi/consolas-font-for-powerline'
+"Syntax Plugins
+NeoBundle 'tikhomirov/vim-glsl'
+NeoBundle 'beyondmarc/hlsl.vim'
+"Interesting alternative to taglist. Was SLOW though.
+"NeoBundle 'majutsushi/tagbar'
+
+" vim-scripts repos
+NeoBundle 'taglist.vim'
+NeoBundle 'a.vim'
+
+" Non github repos
+"NeoBundle 'git://git.wincent.com/command-t.git'
+
+" gist repos
+"NeoBundle 'gist:Shougo/656148', {
+"      \ 'name': 'everything.vim',
+"      \ 'script_type': 'plugin'}
+
+" Non git repos
+NeoBundle 'https://bitbucket.org/abudden/easycolour'
+NeoBundle 'https://bitbucket.org/abudden/taghighlight'
+"NeoBundle 'http://svn.macports.org/repository/macports/contrib/mpvim/'
+NeoBundleCheck
+
+"=======================================================================================
+"                                  General VimRC Setup
+"=======================================================================================
 if has("mac")
-set guifont=Consolas:h12 
+set guifont=Consolas:h11 
 else
-set guifont=Consolas:h10 
+set guifont=Powerline\ Consolas:h11
 endif
 
 colorscheme default_modified
@@ -26,6 +124,8 @@ set statusline=%t%m%r%h%w\ [%{&ff}]\ %y\ [%l/%L--%c]\ [%p%%]
 set laststatus=2 
 set cursorline
 set cinoptions+=g0,h4
+set ignorecase
+set hlsearch
 
 "OS X Specific
 "if has("mac")
@@ -43,28 +143,104 @@ endif
 
 nnoremap ; :
 
-" Remove the highlight of search when done
-nmap <silent> ,/ :nohlsearch<CR>
+function! IsSourceBuffer()
+    "let l:nerd_buf = 1
+    "let l:taglist_buf = 1
+    "if exists("t:NERDTreeBufName")
+        "let l:nerd_buf = winnr() != bufwinnr(t:NERDTreeBufName)
+    "endif
+    "if exists("g:TagList_title")
+        "let l:taglist_buf = winnr() != bufwinnr(g:TagList_title)
+    "endif
+    "return l:nerd_buf && l:taglist_buf
+    return (&ft != 'nerdtree' && &ft != 'taglist')
+endfunction
 
-"Settings for relative line numbering
-function! NumberToggle()
-    if(&relativenumber == 1)
-        set number
+function! IsNERDTreeOpen()
+    if exists("t:NERDTreeBufName")
+        return bufwinnr(t:NERDTreeBufName) != -1
     else
-        set relativenumber
+        return 0
     endif
 endfunction
-au BufEnter * :set relativenumber
-au BufLeave * :set number
+
+function! IsTagListOpen()
+    if exists("g:TagList_title")
+        return bufwinnr(g:TagList_title) != -1
+    else
+        return 0
+    endif
+endfunction
+
+function! s:CloseIfAllSourceClosed()
+    let l:numUtilBufs = IsNERDTreeOpen() ? 1 : 0
+    let l:numUtilBufs += IsTagListOpen() ? 1 : 0
+    if winnr("$") == l:numUtilBufs
+        qa
+    endif
+endfunction
+
+"Close if we no longer have any source windows open
+autocmd WinEnter * call s:CloseIfAllSourceClosed()
+
+function s:PushCurWin()
+    let g:cur_win_id = winnr()
+endfunction
+
+function s:PopCurWin()
+    silent! execute g:cur_win_id .'wincmd w'
+endfunction
+
+"=======================================================================================
+"                              Relative Line Number Settings
+"=======================================================================================
+function! NumberToggle()
+    if(IsSourceBuffer())
+        if(&relativenumber == 1)
+            set number
+        else
+            set relativenumber
+        endif
+    endif
+endfunction
+
+function! EnableRelativeNumber()
+    if(IsSourceBuffer())
+        set relativenumber
+        "if IsTagListOpen()
+            "let l:prev_win_id = winnr()
+            "let l:tagwinnr = bufwinnr(g:TagList_title)
+            "silent! execute l:tagwinnr .'wincmd w'
+            "set norelativenumber
+            "set nonumber
+            "silent! execute l:prev_win_id .'wincmd w'
+        "endif
+    endif
+endfunction
+
+function! DisableRelativeNumber()
+    if(IsSourceBuffer())
+        set number
+    endif
+endfunction
+
+"au BufEnter * :call EnableRelativeNumber()
+"au BufLeave * :call DisableRelativeNumber()
 
 "Format line numbers to be 4 numbers wide
-au FocusLost * :set number
-au FocusGained * :set relativenumber
-autocmd InsertEnter * :set number
-autocmd InsertLeave * :set relativenumber
+"au FocusLost   * :call DisableRelativeNumber()
+"au FocusGained * :call EnableRelativeNumber()
+au BufNewFile,BufReadPost * :call EnableRelativeNumber()
+"autocmd FileType nerdtree setlocal norelativenumber
+autocmd FileType taglist setlocal norelativenumber
+au InsertEnter * :call DisableRelativeNumber()
+au InsertLeave * :call EnableRelativeNumber()
 nnoremap <Leader>n :call NumberToggle()<cr>
 set nuw=5
 
+"=======================================================================================
+"                                  GUI Toggle Settings
+"=======================================================================================
 function! ToggleGUICruft()
   if &guioptions=='i'
     exec('set guioptions=imTrL')
@@ -86,10 +262,21 @@ let g:tvmode = 0
   endif
 endfunction
 
+"=======================================================================================
+"                                  Fullscreen Setup
+"=======================================================================================
 map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+au GUIEnter * : call foreground()
+if has("win32")
+    if has("gui_running")
+        au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
+    endif
+endif
+
 map <F10> <Esc>:call ToggleGUICruft()<cr>
 map <F9> <Esc>:call ToggleFontSize()<cr>
-map <F2> <Esc>:silent! !ctags -R &<cr>
+"map <F2> <Esc>:silent! !ctags -R &<cr>
+map <F2> <Esc>:silent! !ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 map <F3> <Esc>:UpdateTypesFile<cr>
 
 " by default, hide gui menus
@@ -97,12 +284,36 @@ set guioptions=i
 
 filetype plugin on
 
-"Super Tab Settings
+"=======================================================================================
+"                                SuperTab Settings
+"=======================================================================================
 let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
+set completeopt=menuone,menu,longest
+set pumheight=15
 
-"MiniBufExpl Settings
+"=======================================================================================
+"                            Window Navigation Settings
+"=======================================================================================
+nnoremap <C-J>     <C-W>j
+nnoremap <C-K>     <C-W>k
+nnoremap <C-H>     <C-W>h
+nnoremap <C-L>     <C-W>l
+
+"=======================================================================================
+"                                MiniBufExpl Settings
+"=======================================================================================
+"Switch tabs using ctrl + tab / ctrl + shift + tab
+noremap <C-TAB>   :MBEbn<CR>
+noremap <C-S-TAB> :MBEbp<CR>
+
+"Properly close buffers
+nnoremap <Leader>bd :MBEbd<cr>
+nnoremap <Leader>bw :MBEbw<cr>
+nnoremap <Leader>bun :MBEbun<cr>
+
+
 let g:miniBufExplCycleArround = 1
 let g:miniBufExplUseSingleClick = 1
 
@@ -115,33 +326,68 @@ hi MBEVisibleActiveNormal  guifg=#ffcd22 guibg=fg
 hi MBEVisibleActiveChanged guifg=#ffcd22 guibg=fg
 
 
-"Window navigation
-nnoremap <C-J>     <C-W>j
-nnoremap <C-K>     <C-W>k
-nnoremap <C-H>     <C-W>h
-nnoremap <C-L>     <C-W>l
-
-"Switch tabs using ctrl + tab / ctrl + shift + tab
-noremap <C-TAB>   :MBEbn<CR>
-noremap <C-S-TAB> :MBEbp<CR>
-
+"=======================================================================================
+"                                   Ctrl-P Settings
+"=======================================================================================
 "Ctrl-P Settings
-let g:ctrlp_working_path_mode = 'rc'
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-    \ 'file': '\v\.(exe|so|obj|dll)$',
-    \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
-    \ }
+"let g:ctrlp_working_path_mode = 'rc'
+"let g:ctrlp_map = '<c-p>'
+"let g:ctrlp_cmd = 'CtrlP'
+"let g:ctrlp_custom_ignore = {
+    "\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    "\ 'file': '\v\.(exe|so|obj|dll)$',
+    "\ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+    "\ }
 
+"=======================================================================================
+"                                   Unite Settings
+"=======================================================================================
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+nnoremap <space>f :<C-u>Unite -start-insert file_rec<CR>
+nnoremap <space>s :Unite -quick-match buffer<cr>
+nnoremap <space>t :Unite -quick-match tag<cr>
+nnoremap <space>o :Unite -quick-match outline<cr>
+
+"=======================================================================================
+"                                   GREP Keybindings
+"=======================================================================================
 map <F4> :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw<CR><C-W><C-P>
 command FW :execute "vimgrep! /" . expand("<cword>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw <bar> normal <C-W><C-P>
 command -nargs=* FF :execute "vimgrep! /" . expand("<args>") . "/j **.cpp **.c **.h **.txt **.fx" <bar> cw <bar> normal <C-W><C-P>
+
+"au BufWritePost *.c,*.cpp,*.h call s:ExecuteInShellHidden("silent! !ctags -R &")
+
+"=======================================================================================
+"                                   Build Settings
+"=======================================================================================
+if has("mac")
+set makeprg=make
+else
+set makeprg=amake
+endif
+set switchbuf=usetab
+
 map <F5> :mak<CR>
 map <F6> :Acad<CR>
 
-autocmd FileType qf wincmd J
+"=======================================================================================
+"                              QuickFix Window Settings
+"=======================================================================================
+"Make sure the quick fix window is the right size when its opened
+au FileType qf call AdjustWindowHeight(3, 10)
+function! AdjustWindowHeight(minheight, maxheight)
+   let l = 1
+   let n_lines = 0
+   let w_width = winwidth(0)
+   while l <= line('$')
+       " number to float for division
+       let l_len = strlen(getline(l)) + 0.0
+       let line_width = l_len/w_width
+       let n_lines += float2nr(ceil(line_width))
+       let l += 1
+   endw
+   exe max([min([n_lines, a:maxheight]), a:minheight]) . "wincmd _"
+endfunction
 
 " Assign some keys for handy quickfix window commands.
 if has("win32")
@@ -165,33 +411,9 @@ function s:Fancy_Quickfix_Cmd(Cmd)
   norm! zz
   " If the taglist window is open then :TlistSync
   "    Tag list window name: '__Tag_List__'
-  if bufwinnr('__Tag_List__') != -1
+  if IsTagListOpen()
     TlistSync
   endif
-endfunction
-
-"au BufWritePost *.c,*.cpp,*.h call s:ExecuteInShellHidden("silent! !ctags -R &")
-if has("mac")
-set makeprg=make
-else
-set makeprg=amake
-endif
-set switchbuf=usetab
-
-"Make sure the quick fix window is the right size when its opened
-au FileType qf call AdjustWindowHeight(3, 10)
-function! AdjustWindowHeight(minheight, maxheight)
-   let l = 1
-   let n_lines = 0
-   let w_width = winwidth(0)
-   while l <= line('$')
-       " number to float for division
-       let l_len = strlen(getline(l)) + 0.0
-       let line_width = l_len/w_width
-       let n_lines += float2nr(ceil(line_width))
-       let l += 1
-   endw
-   exe max([min([n_lines, a:maxheight]), a:minheight]) . "wincmd _"
 endfunction
 
 
@@ -210,13 +432,13 @@ endfunction
 " seem to happen.
 autocmd QuickFixCmdPost [^l]* nested cwindow 8
 autocmd QuickFixCmdPost    l* nested lwindow
+"Switch to buffer after quickfix
+autocmd FileType qf wincmd J
 
-"au FileType qf call AdjustWindowHeight(3, 10)
-"function! AdjustWindowHeight(minheight, maxheight)
-  "exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
-"endfunction
-"command Clean :echo system("amake clean")
 
+"=======================================================================================
+"                         Shell Execution Utility Functions
+"=======================================================================================
 function! s:ExecuteInShell(command)
   let command = join(map(split(a:command), 'expand(v:val)'))
   let winnr = bufwinnr('^' . command . '$')
@@ -232,7 +454,7 @@ function! s:ExecuteInShell(command)
 endfunction
 
 function! s:ExecuteInShellHidden(command)
-  let curwin = winnr()
+  call s:PushCurWin()
   let command = join(map(split(a:command), 'expand(v:val)'))
   let winnr = bufwinnr('^' . command . '$')
   silent! execute  winnr < 0 ? 'botright new ' . fnameescape(command) : winnr . 'wincmd w'
@@ -245,47 +467,41 @@ function! s:ExecuteInShellHidden(command)
   silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
   silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>'
   echo 'Shell command ' . command . ' executed.'
-  silent! execute curwin .'wincmd w'
+  call s:PopCurWin()
 endfunction
 command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 command! -complete=shellcmd Acad call s:ExecuteInShellHidden("acad")
 command! -complete=shellcmd Mak call s:ExecuteInShellHidden("mak")
 
-"GLSL Syntax Highlighting
-au BufNewFile,BufRead *.frag,*.vert,*.fp,*.vp,*.glsl setf glsl 
-au BufNewFile,BufRead *.hlsl,*.fx setf fx 
+"=======================================================================================
+"                             Shader Syntax Settings
+"=======================================================================================
+au BufNewFile,BufRead *.vp,*.fp,*.gp,*.vs,*.fs,*.gs,*.tcs,*.tes,*.cs,*.vert,*.frag,*.geom,*.tess,*.shd,*.gls,*.glsl set ft=glsl
+au BufNewFile,BufRead *.fx,*.fxc,*.fxh,*.hlsl set ft=hlsl
 "GScript Syntax Highlighting
 au BufRead,BufNewFile *.gs2 setfiletype gscript | set tabstop=2 | shiftwidth=2
 
+"=======================================================================================
+"                               EasyMotion Settings
+"=======================================================================================
 "EasyMotion Configuration
-let g:EasyMotion_leader_key = '<Leader>'
+"let g:EasyMotion_leader_key = '<Leader>'
 
+"=======================================================================================
+"                                 NERDTree Settings
+"=======================================================================================
 "NERDTree Configuration
 nnoremap <C-e> :NERDTreeToggle<CR> <bar> <C-w>=
 " Close all open buffers on entering a window if the only
 " buffer that's left is the NERDTree buffer
-function! s:CloseIfOnlyNerdTreeLeft()
-  if exists("t:NERDTreeBufName")
-    if bufwinnr(t:NERDTreeBufName) != -1
-      if winnr("$") == 1
-        q
-      endif
-    endif
-  endif
-endfunction
-
-"Window setup at start (With NerdTree)
-autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
 
 " Open NERDTree on startup
 "autocmd VimEnter * NERDTree
 "autocmd VimEnter * wincmd w
 
-
-
-" REQUIRED. This makes vim invoke Latex-Suite when you open a tex file.
-filetype plugin on
-
+"=======================================================================================
+"                                 LaTeX Settings
+"=======================================================================================
 " IMPORTANT: win32 users will need to have 'shellslash' set so that latex
 " can be called correctly.
 set shellslash
@@ -312,12 +528,215 @@ let g:Tex_DefaultTargetFormat = 'pdf'
 let g:Tex_CompileRule_pdf = 'pdflatex --synctex=-1 -src-specials -interaction=nonstopmode $*'
 set nofoldenable
 
-"Smooth scrolling
+"=======================================================================================
+"                            Smooth Scrolling Settings
+"=======================================================================================
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 12, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 12, 2)<CR>
 noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 12, 4)<CR>
 noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 12, 4)<CR>
 
+"=======================================================================================
+"                            Multiple Cursor Settings
+"=======================================================================================
+" Default mapping
+let g:multi_cursor_next_key='<C-n>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-x>'
+let g:multi_cursor_quit_key='<Esc>'
+let g:multi_cursor_exit_from_visual_mode = 0
+let g:multi_cursor_exit_from_insert_mode = 0
+
+"=======================================================================================
+"                            Window Resizer Settings
+"=======================================================================================
+let g:winresizer_start_key = '<C-T>'
+
+"=======================================================================================
+"                            Clang-Complete Settings
+"=======================================================================================
+"let g:clang_user_options='-std=c++0x -x c++' 
+"map <F7>  :call g:ClangUpdateQuickFix()<CR>
+
+""let g:clang_auto_user_options='path, .clang_complete'
+""let g:clang_user_options='-std=c++11 || exit 0'
+"let g:clang_use_library = 1
+"let g:clang_library_path='C:\Clang\build\bin\Release'
+"let g:clang_periodic_quickfix=1
+"let g:clang_hl_errors=1
+""let g:clang_complete_auto = 0
+"let g:clang_complete_copen=1
+"let g:clang_debug = 1
+
+"=======================================================================================
+"                            NeoCompleteCache Settings
+"=======================================================================================
+""Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
+"" Disable AutoComplPop.
+"let g:acp_enableAtStartup = 0
+"" Use neocomplcache.
+"let g:neocomplcache_enable_at_startup = 1
+"" Use smartcase.
+"let g:neocomplcache_enable_smart_case = 1
+"" Set minimum syntax keyword length.
+"let g:neocomplcache_min_syntax_length = 3
+"let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+
+"" Enable heavy features.
+"" Use camel case completion.
+""let g:neocomplcache_enable_camel_case_completion = 1
+"" Use underbar completion.
+""let g:neocomplcache_enable_underbar_completion = 1
+
+"" Define dictionary.
+"let g:neocomplcache_dictionary_filetype_lists = {
+    "\ 'default' : '',
+    "\ 'vimshell' : $HOME.'/.vimshell_hist',
+    "\ 'scheme' : $HOME.'/.gosh_completions'
+        "\ }
+
+"" Define keyword.
+"if !exists('g:neocomplcache_keyword_patterns')
+    "let g:neocomplcache_keyword_patterns = {}
+"endif
+"let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
+
+"" Plugin key-mappings.
+"inoremap <expr><C-g>     neocomplcache#undo_completion()
+"inoremap <expr><C-l>     neocomplcache#complete_common_string()
+
+"" Recommended key-mappings.
+"" <CR>: close popup and save indent.
+"inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+"function! s:my_cr_function()
+  "return neocomplcache#smart_close_popup() . "\<CR>"
+  "" For no inserting <CR> key.
+  ""return pumvisible() ? neocomplcache#close_popup() : "\<CR>"
+"endfunction
+"" <TAB>: completion.
+"inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+"" <C-h>, <BS>: close popup and delete backword char.
+"inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+"inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+"inoremap <expr><C-y>  neocomplcache#close_popup()
+"inoremap <expr><C-e>  neocomplcache#cancel_popup()
+"" Close popup by <Space>.
+""inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() : "\<Space>"
+
+"" For cursor moving in insert mode(Not recommended)
+""inoremap <expr><Left>  neocomplcache#close_popup() . "\<Left>"
+""inoremap <expr><Right> neocomplcache#close_popup() . "\<Right>"
+""inoremap <expr><Up>    neocomplcache#close_popup() . "\<Up>"
+""inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
+"" Or set this.
+""let g:neocomplcache_enable_cursor_hold_i = 1
+"" Or set this.
+""let g:neocomplcache_enable_insert_char_pre = 1
+
+"" AutoComplPop like behavior.
+""let g:neocomplcache_enable_auto_select = 1
+
+"" Shell like behavior(not recommended).
+""set completeopt+=longest
+""let g:neocomplcache_enable_auto_select = 1
+""let g:neocomplcache_disable_auto_complete = 1
+""inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
+
+"" Enable omni completion.
+"autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+"autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+"autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+"autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+"" Enable heavy omni completion.
+"if !exists('g:neocomplcache_omni_patterns')
+  "let g:neocomplcache_omni_patterns = {}
+"endif
+"let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+"let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+"let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+"" For perlomni.vim setting.
+"" https://github.com/c9s/perlomni.vim
+"let g:neocomplcache_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+
+"=======================================================================================
+"                            NeoSnippets Settings
+"=======================================================================================
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: pumvisible() ? "\<C-n>" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: "\<TAB>"
+
+" For snippet_complete marker.
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
+
+" Enable snipMate compatibility feature.
+let g:neosnippet#enable_snipmate_compatibility = 1
+
+" Tell Neosnippet about the other snippets
+let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+
+"=======================================================================================
+"                            Vim Indent Guides
+"=======================================================================================
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1
+au GUIEnter * :IndentGuidesEnable
+
+"=======================================================================================
+"                                   Powerline Settings
+"=======================================================================================
+"Powerline configuration
+set encoding=utf-8
+set laststatus=2
+set t_Co=256
+let g:Powerline_symbols = "fancy"
+"This is needed if enabling powerline
+"set rtp+=$HOME/.vim/bundle/powerline/powerline/bindings/vim
+let g:airline_powerline_fonts=1
+let g:airline_theme='badwolf'
+let g:airline_section_b = '%{getcwd()}'
+let g:airline_section_c = '%t'
+
+"=======================================================================================
+"                                Taglist Settings
+"=======================================================================================
+let Tlist_Show_One_File = 1
+let Tlist_Use_Right_Window = 1
+let Tlist_GainFocus_On_ToggleOpen = 1
+let Tlist_WinWidth = 40
+
+"Tagbar variant
+"let g:tagbar_iconchars = ['▾', '▸']
+"let g:tagbar_autoshowtag = 1
+"let g:tagbar_compact = 1
+"setlocal updatetime=300
+
+function! ToggleTagList()
+  call s:PushCurWin()
+  TlistToggle
+  "TagbarToggle
+  call s:PopCurWin()
+endfunction
+
+nnoremap <silent> <space>t :call ToggleTagList()<cr>
+"autocmd CursorMoved * silent! TlistHighlightTag
+
+"=======================================================================================
+"                                   Unused Settings
+"=======================================================================================
 set diffexpr=MyDiff()
 function MyDiff()
   let opt = '-a --binary '
@@ -343,19 +762,3 @@ function MyDiff()
   silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
 endfunction
 
-" Multi-cursor settings
-" Default mapping
-let g:multi_cursor_next_key='<C-n>'
-let g:multi_cursor_prev_key='<C-p>'
-let g:multi_cursor_skip_key='<C-x>'
-let g:multi_cursor_quit_key='<Esc>'
-let g:multi_cursor_exit_from_visual_mode = 0
-let g:multi_cursor_exit_from_insert_mode = 0
-
-
-au GUIEnter * : call foreground()
-if has("win32")
-    if has("gui_running")
-        au GUIEnter * simalt ~x "x on an English Windows version. n on a French one
-    endif
-endif
