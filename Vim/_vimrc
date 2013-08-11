@@ -26,7 +26,14 @@ call neobundle#rc(expand('~/.vim/bundle/'))
 
  " Recommended to install
  " After install, turn shell ~/.vim/bundle/vimproc, (n,g)make -f your_machines_makefile
- NeoBundle 'Shougo/vimproc'
+ NeoBundle 'Shougo/vimproc', {
+      \ 'build' : {
+      \     'windows' : 'make -f make_mingw32.mak',
+      \     'cygwin' : 'make -f make_cygwin.mak',
+      \     'mac' : 'make -f make_mac.mak',
+      \     'unix' : 'make -f make_unix.mak',
+      \    },
+      \ }
 
 " My Bundles here:
 "
@@ -51,7 +58,11 @@ NeoBundle 'jimsei/winresizer'
 "NeoBundle 'Shougo/neocomplcache'
 "NeoBundle 'ujihisa/neco-look'
 "NeoBundle 'Rip-Rip/clang_complete'
-NeoBundle 'ervandew/supertab'
+";W
+"
+"if !has('gui_gtk2')
+    NeoBundle 'ervandew/supertab'
+"endif
 
 "Snippets
 "NeoBundle 'scrooloose/snipmate-snippets'
@@ -63,14 +74,8 @@ NeoBundle 'ervandew/supertab'
 "NeoBundle 'SirVer/ultisnips'
 
 NeoBundle 'kien/ctrlp.vim'
-"NeoBundle 'Shougo/vimproc', {
-      "\ 'build' : {
-      "\     'windows' : 'make -f make_mingw32.mak',
-      "\     'cygwin' : 'make -f make_cygwin.mak',
-      "\     'mac' : 'make -f make_mac.mak',
-      "\     'unix' : 'make -f make_unix.mak',
-      "\    },
-      "\ }
+
+"Unite plugins
 "NeoBundle 'Shougo/unite.vim'
 "NeoBundle 'h1mesuke/unite-outline'
 "NeoBundle 'tsukkee/unite-tag'
@@ -90,8 +95,9 @@ NeoBundle 'beyondmarc/hlsl.vim'
 "NeoBundle 'majutsushi/tagbar'
 
 "Linux-based code completion
-if has ('gui_gtk2')
-endif
+"if has ('gui_gtk2')
+    "NeoBundle 'Valloric/YouCompleteMe'
+"endif
 
 " vim-scripts repos
 NeoBundle 'L9'
@@ -109,7 +115,9 @@ NeoBundle 'a.vim'
 " Non git repos
 NeoBundle 'https://bitbucket.org/abudden/easycolour'
 NeoBundle 'https://bitbucket.org/abudden/taghighlight'
-NeoBundle 'https://bitbucket.org/ns9tks/vim-autocomplpop/'
+"if !has('gui_gtk2')
+    NeoBundle 'https://bitbucket.org/ns9tks/vim-autocomplpop/'
+"endif
 "NeoBundle 'http://svn.macports.org/repository/macports/contrib/mpvim/'
 NeoBundle 'jcf/vim-latex'
 NeoBundleCheck
@@ -122,7 +130,7 @@ if has("win32")
 elseif has ("mac")
     set guifont=Consolas:h11 
 else
-    set guifont=Powerline\ Consolas\ 12
+    set guifont=Powerline\ Consolas\ 11
 endif
 
 colorscheme default_modified
@@ -144,6 +152,8 @@ set hlsearch
 syntax on
 if has ('gui_gtk2')
     set clipboard=unnamed
+    set guiheadroom=0
+    set t_Co=256
 endif
 
 "OS X Specific
@@ -161,6 +171,8 @@ if has('autocmd')
 endif
 
 nnoremap ; :
+nnoremap <C-0> :MBEbn<CR>
+nnoremap <C-9> :MBEbp<CR>
 
 function! IsSourceBuffer()
     "let l:nerd_buf = 1
@@ -306,9 +318,11 @@ filetype plugin on
 "=======================================================================================
 "                                SuperTab Settings
 "=======================================================================================
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabLongestEnhanced = 1
-let g:SuperTabLongestHighlight = 1
+"if !has("gui_gtk2")
+    let g:SuperTabDefaultCompletionType = "context"
+    let g:SuperTabLongestEnhanced = 1
+    let g:SuperTabLongestHighlight = 1
+"endif
 "set completeopt=menuone,menu,longest
 "set pumheight=15
 
@@ -582,10 +596,16 @@ au BufRead,BufNewFile *.tex noremap j gj
 au BufRead,BufNewFile *.tex noremap k gk
 au BufRead,BufNewFile *.tex set formatoptions=l
 au BufRead,BufNewFile *.tex set lbr
-let g:Tex_ViewRule_pdf = 'SumatraPDF'
+
+if has('gui_gtk2')
+    let g:Tex_ViewRule_pdf = 'evince'
+else
+    let g:Tex_ViewRule_pdf = 'SumatraPDF'
+endif
 let g:Tex_DefaultTargetFormat = 'pdf'
 let g:Tex_CompileRule_pdf = 'pdflatex --synctex=-1 -src-specials -interaction=nonstopmode $*'
 set nofoldenable
+nnoremap <SID><leader>c <Plug>IMAP_JumpForward
 
 "=======================================================================================
 "                            Smooth Scrolling Settings
@@ -724,28 +744,28 @@ let g:winresizer_start_key = '<C-T>'
 "                            NeoSnippets Settings
 "=======================================================================================
 " Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-k>     <Plug>(neosnippet_expand_target)
+"imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+"smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+"xmap <C-k>     <Plug>(neosnippet_expand_target)
 
 " SuperTab like snippets behavior.
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
-\: pumvisible() ? "\<C-n>" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)"
-\: "\<TAB>"
+"imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+"\ "\<Plug>(neosnippet_expand_or_jump)"
+"\: pumvisible() ? "\<C-n>" : "\<TAB>"
+"smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+"\ "\<Plug>(neosnippet_expand_or_jump)"
+"\: "\<TAB>"
 
-" For snippet_complete marker.
-if has('conceal')
-  set conceallevel=2 concealcursor=i
-endif
+"" For snippet_complete marker.
+"if has('conceal')
+  "set conceallevel=2 concealcursor=i
+"endif
 
-" Enable snipMate compatibility feature.
-let g:neosnippet#enable_snipmate_compatibility = 1
+"" Enable snipMate compatibility feature.
+"let g:neosnippet#enable_snipmate_compatibility = 1
 
-" Tell Neosnippet about the other snippets
-let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+"" Tell Neosnippet about the other snippets
+"let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
 
 "=======================================================================================
 "                            Vim Indent Guides
