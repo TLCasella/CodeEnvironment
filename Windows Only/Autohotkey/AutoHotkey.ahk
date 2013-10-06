@@ -31,3 +31,9 @@ return
 ;+Enter::
 ;Send {k} {o} {Esc}
 ;return
+#IfWinActive
+
+#If WinActive("ahk_exe" "chrome.exe")
+^0::^PgDn
+^9::^PgUp
+#If
