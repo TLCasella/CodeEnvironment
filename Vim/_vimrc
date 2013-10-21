@@ -44,6 +44,7 @@ NeoBundle 'scrooloose/nerdtree'
 NeoBundle 'scrooloose/nerdcommenter'
 NeoBundle 'bkad/CamelCaseMotion'
 NeoBundle 'Raimondi/delimitMate'
+NeoBundle 'goldfeld/vim-seek'
 
 "Needed by Many plugins
 NeoBundle 'MarcWeber/vim-addon-mw-utils'
@@ -52,6 +53,7 @@ NeoBundle 'MarcWeber/vim-addon-mw-utils'
 NeoBundle 'fholgado/minibufexpl.vim'
 NeoBundle 'octol/vim-cpp-enhanced-highlight'
 NeoBundle 'terryma/vim-multiple-cursors'
+NeoBundle 'terryma/vim-expand-region'
 NeoBundle 'terryma/vim-smooth-scroll'
 NeoBundle 'jimsei/winresizer'
 "Code Completion
@@ -149,6 +151,8 @@ set cursorline
 set cinoptions+=g0,h4
 set ignorecase
 set hlsearch
+set nowrap
+vnoremap w iw
 syntax on
 if has ('gui_gtk2')
     set clipboard=unnamed
@@ -788,6 +792,10 @@ let g:airline_powerline_fonts=1
 let g:airline_theme='badwolf'
 let g:airline_section_b = '%{getcwd()}'
 let g:airline_section_c = '%t'
+let g:airline_section_y = 'B%{bufnr("%")}'
+
+let g:airline#extensions#whitespace#enabled = 0
+"let g:airline_section_a = '%{airline#extensions#whitespace#check()}'
 
 "=======================================================================================
 "                                Taglist Settings
