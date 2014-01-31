@@ -45,6 +45,7 @@ NeoBundle 'scrooloose/nerdcommenter'
 NeoBundle 'bkad/CamelCaseMotion'
 NeoBundle 'Raimondi/delimitMate'
 NeoBundle 'goldfeld/vim-seek'
+NeoBundle 'godlygeek/tabular'
 
 "Needed by Many plugins
 NeoBundle 'MarcWeber/vim-addon-mw-utils'
@@ -820,6 +821,22 @@ endfunction
 
 nnoremap <silent> <space>t :call ToggleTagList()<cr>
 "autocmd CursorMoved * silent! TlistHighlightTag
+
+
+"=======================================================================================
+"                               Tabularize Settings
+"=======================================================================================
+inoremap <silent> = =<Esc>:call <SID>ealign()<CR>a
+function! s:ealign()
+  let p = '^.*=\s.*$'
+  if exists(':Tabularize') && getline('.') =~# '^.*=' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^=]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*=\s*\zs.*'))
+    Tabularize/=/l1
+    normal! 0
+    call search(repeat('[^=]*=',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
 
 "=======================================================================================
 "                                   Unused Settings
