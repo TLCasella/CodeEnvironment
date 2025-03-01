@@ -1,0 +1,261 @@
+let os=substitute(system('uname'), '\n', '', '')
+
+set nocompatible
+
+"=======================================================================================
+"                                   Plugins Setups
+"=======================================================================================
+
+if has('vim_starting')
+    if has("win32")
+        set runtimepath+=$VIMRUNTIME/../vimfiles/bundle/neobundle.vim/
+    else
+        set runtimepath+=~/.vim/bundle/neobundle.vim/
+   endif
+endif
+
+call neobundle#begin(expand('~/.vim/bundle/'))
+
+ " Let NeoBundle manage NeoBundle
+ NeoBundleFetch 'Shougo/neobundle.vim'
+
+ " Recommended to install
+ " After install, turn shell ~/.vim/bundle/vimproc, (n,g)make -f your_machines_makefile
+ NeoBundle 'Shougo/vimproc', {
+    \ 'build' : {
+    \     'windows' : 'make -f make_mingw32.mak',
+    \     'cygwin' : 'make -f make_cygwin.mak',
+    \     'mac' : 'make -f make_mac.mak',
+    \     'unix' : 'make -f make_unix.mak',
+    \    },
+    \ }
+
+" Status Bar
+NeoBundle 'vim-airline/vim-airline'
+NeoBundle 'vim-airline/vim-airline-themes'
+
+" Syntax Highlighting
+NeoBundle 'vim-syntastic/syntastic'
+NeoBundle 'keith/swift.vim'
+
+" Git conveniences
+NeoBundle 'tpope/vim-fugitive'
+
+" Color theme
+NeoBundle 'patstockwell/vim-monokai-tasty'
+
+" Quickly move to parts of file via \s \w, etc
+NeoBundle 'easymotion/vim-easymotion'
+
+" Smooth animations for scrolling
+NeoBundle 'psliwka/vim-smoothie'
+
+" Multiple cursors
+NeoBundle 'mg979/vim-visual-multi'
+
+" Comment hotkeys
+NeoBundle 'preservim/nerdcommenter'
+
+" Indent guides
+NeoBundle 'nathanaelkane/vim-indent-guides'
+
+NeoBundle 'airblade/vim-gitgutter'
+
+NeoBundle 'kien/ctrlp.vim'
+
+NeoBundle 'stevearc/vim-arduino'
+NeoBundle 'preservim/vimux'
+
+NeoBundleCheck
+
+call neobundle#end()
+
+filetype plugin indent on
+
+"=======================================================================================
+"                                  General VimRC Setup
+"=======================================================================================
+
+"=======================================================================================
+"                                  Editor Settings
+"=======================================================================================
+
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set cindent
+set nobackup
+set hidden
+set noswapfile
+set undolevels=1000      " use many muchos levels of undo
+set ignorecase
+set nowrap
+vnoremap w iw
+syntax on
+" Highlight current line
+set cursorline
+" Highlight search matches
+set hlsearch
+" Indent options
+set cinoptions+=g0,h4
+" Quickly enter commands by hitting ; rather than :
+nnoremap ; :
+
+" Part of easy-motion. To navigate quickly, press \w, \b, etc
+map <Leader> <Plug>(easymotion-prefix)
+
+" Start scrolling before the cursor is at the edge of the window
+set scrolloff=15
+" When scrolling e.g. ctrl+D the cursor will move to the first non-whitespace
+" character
+set startofline
+
+" Window management
+nnoremap <C-J>     <C-W>j
+nnoremap <C-K>     <C-W>k
+nnoremap <C-H>     <C-W>h
+nnoremap <C-L>     <C-W>l
+
+"=======================================================================================
+"                                  Appearance Settings
+"=======================================================================================
+
+let g:vim_monokai_tasty_italic = 1
+colorscheme vim-monokai-tasty
+set guifont=Fira\ Code:h14
+
+hi Search guibg=#E6DB5C guifg=#646658 cterm=none
+hi Comment ctermfg=235 ctermbg=245
+hi vimOperParen ctermfg=235
+
+" Start with indent guides enabled
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1
+
+"=======================================================================================
+"                              Relative Line Number Settings
+"=======================================================================================
+
+" Show numbers
+set relativenumber
+set number
+" Number width for line numbers
+set nuw=5
+autocmd InsertEnter * :set norelativenumber
+autocmd InsertLeave * :set relativenumber
+
+"=======================================================================================
+"                                  Airline Setup
+"=======================================================================================
+
+let g:airline_theme='monokai_tasty'
+
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.space = "\ua0"
+let g:airline_symbols.branch = '􀙠'
+let g:airline_symbols.dirty='*'
+
+" Show git branch in status
+let g:airline#extensions#hunks#enabled=0
+let g:airline#extensions#branch#enabled=1
+
+let g:airline#extensions#syntastic#enabled=1
+let g:airline#extensions#syntastic#error_symbol = '􀒉 '
+let g:airline#extensions#syntastic#warning_symbol = '􀇾 '
+let g:airline#extensions#syntastic#stl_format_err = '%E{%fe ☰%e}'
+let g:airline#extensions#syntastic#stl_format_warn = '%W{%fw ☰%w}'
+
+" Don't show where hidden whitespace characters are
+let g:airline#extensions#whitespace#enabled = 0
+
+let g:airline_section_c = '%t'
+let g:airline_section_x = '%-0.60{getcwd()}'
+let g:airline_section_y = ''
+let g:airline_section_z = '%l/%L⋅%c'
+
+"=======================================================================================
+"                                  Multi-Cursor Setup
+"=======================================================================================
+
+let g:VM_maps = {}
+let g:VM_maps['Visual Cursors'] = '<C-n>'
+let g:VM_maps["Undo"] = 'u'
+let g:VM_maps["Redo"] = '<C-r>'
+let g:VM_maps["Add Cursor Down"]             = '<S-C-j>'
+let g:VM_maps["Add Cursor Up"]               = '<S-C-k>'
+
+"=======================================================================================
+"                                  Syntastic Setup
+"=======================================================================================
+
+let g:syntastic_swift_checkers = ['swiftpm', 'swiftlint']
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_aggregate_errors = 1
+let g:syntastic_sort_aggregated_errors = 1
+let g:syntastic_error_symbol = '􀒉'
+let g:syntastic_warning_symbol = '􀇾'
+
+let g:syntastic_swift_swiftlint_use_defaults = 1
+let g:syntastic_swift_swiftlint_args = '--config ~/.swiftlint.yml'
+
+let g:syntastic_cpp_compiler = 'cc'
+let g:syntastic_cpp_include_dirs = ['/opt/homebrew/Cellar/raylib/5.5/include', '/usr/local/include', '/opt/homebrew/Cellar/raylib/5.5/li', '.']
+let g:syntastic_cpp_compiler_options = '-std=c++14 -g -Wall -Wno-pragma-once-outside-header -L/opt/homebrew/Cellar/raylib/5.5/lib -lraylib'
+let g:syntastic_cpp_check_header = 1
+let g:syntastic_cpp_auto_refresh_includes = 1
+
+highlight SyntasticErrorSign guifg=#F92672 guibg=#272822
+highlight SyntasticWarningSign guifg=#FD971F guibg=#272822
+
+highlight SyntasticErrorLine guibg=#333236
+highlight SyntasticWarningSign guibg=#333236
+
+"=======================================================================================
+"                                  NerdCommenter Setup
+"=======================================================================================
+let g:NERDSpaceDelims = 1
+
+"=======================================================================================
+"                                  Arduino Setup
+"=======================================================================================
+let g:arduino_use_cli = 1
+let g:arduino_use_slime = 0
+let g:arduino_use_vimux = 1
+let g:arduino_serial_cmd = 'arduino-cli monitor -p {port}'
+let g:VimuxHeight = "15"
+let g:VimuxUseNearest = 1
+let g:VimuxCloseOnExit = 1
+let g:NERDCustomDelimiters = {
+    \ 'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' }
+    \ }
+
+" my_file.ino [arduino:avr:uno] [arduino:usbtinyisp] (/dev/ttyACM0:9600)
+function! ArduinoStatusLine()
+  let port = arduino#GetPort()
+  let line = '[' . g:arduino_board . '] [' . g:arduino_programmer . ']'
+  if !empty(port)
+    let line = line . ' (' . port . ':' . g:arduino_serial_baud . ')'
+  endif
+  return line
+endfunction
+augroup ArduinoStatusLine
+  autocmd! * <buffer>
+  autocmd BufWinEnter <buffer> setlocal stl=%f\ %h%w%m%r\ %{ArduinoStatusLine()}\ %=\ %(%l,%c%V\ %=\ %P%)
+augroup END
+
+autocmd BufNewFile,BufRead *.ino let g:airline_section_x='%{ArduinoStatusLine()}'
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>aa <cmd>ArduinoAttach<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>am <cmd>ArduinoVerify<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>au <cmd>ArduinoUpload<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>ad <cmd>ArduinoUploadAndSerial<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>ab <cmd>ArduinoChooseBoard<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>ap <cmd>ArduinoChooseProgrammer<CR>
+autocmd BufNewFile,BufRead *.ino nnoremap <buffer> <leader>as <cmd>ArduinoSerial<CR>
+
+let g:ctrlp_user_command = 'find %s -type f | grep -v "`cat .ctrlpignore`"'
